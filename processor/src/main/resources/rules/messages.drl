@@ -1,0 +1,12 @@
+package rules
+
+import com.weblogism.processit.processor.Message
+
+rule "A1 messages"
+    dialect "mvel"
+
+    when
+        m : Message( code == "A1" )
+    then
+        System.out.println("Creating entry for " + m.numberId);
+end
