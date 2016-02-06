@@ -28,19 +28,19 @@ object Main {
   class RabbitConsumer extends Consumer with akka.actor.ActorLogging {
     val ks:KieServices = KieServices.Factory.get()
     val kc:KieContainer = ks.getKieClasspathContainer()
-    def endpointUri = "rabbitmq://localhost/test.queue?queue=test.incoming&durable=true&autoDelete=false"
+    def endpointUri = "rabbitmq://localhost/rule.queue?queue=rule.incoming&durable=true&autoDelete=false&exchangePattern=InOnly"
 
     def receive = {
       case msg:CamelMessage => {
         val ksession = kc.newKieSession("MessageProcessor")
 
         ksession.addEventListener( new DebugAgendaEventListener() )
-	    ksession.addEventListener( new DebugRuleRuntimeEventListener() )
+        ksession.addEventListener( new DebugRuleRuntimeEventListener() )
 
         val m = new Message(msg.bodyAs[String], "12345", "132345")
 
-		ksession.insert(m)
-		ksession.fireAllRules()
+        ksession.insert(m)
+        ksession.fireAllRules()
       }
     }
   }
