@@ -34,7 +34,7 @@ object Main {
   }
 
 
-  class RabbitConsumer(producer: ActorRef, router: ActorRef) extends Consumer with Tables {
+  class RabbitConsumer(producer: ActorRef, router: ActorRef) extends Consumer {
     // A consumer consumes messages from endpoint
     override def endpointUri = "rabbitmq://localhost/test.queue?queue=test.incoming&durable=true&autoDelete=false&exchangePattern=InOnly"
 
@@ -52,7 +52,7 @@ object Main {
     override def endpointUri: String = "direct:auditProcessing"
   }
 
-  class AuditUnmarshaller(system: ActorSystem) extends RouteBuilder with Tables {
+  class AuditUnmarshaller(system: ActorSystem) extends RouteBuilder {
     override def configure: Unit = {
       from("direct:auditProcessing").unmarshal().json(JsonLibrary.Gson).to("direct:audit")
     }
@@ -65,9 +65,11 @@ object Main {
       case msg:CamelMessage => {
         val map:LinkedTreeMap[String,Object] = msg.bodyAs[LinkedTreeMap[String,Object]]
         val code:String = map.getOrDefault("code", "A001").asInstanceOf[String]
+        val number:String = map.getOrDefault("number", null).asInstanceOf[String]
+        val agentId:Double = map.getOrDefault("agent_id", null).asInstanceOf[Double]
         val db = Database.forConfig("mydb")
         db.run(DBIO.seq(
-          auditLogs += (UUID.randomUUID(), code, new Timestamp(new java.util.Date().getTime))
+          auditLogs += (UUID.randomUUID(), code, number, agentId, new Timestamp(new java.util.Date().getTime))
         ))
       }
     }

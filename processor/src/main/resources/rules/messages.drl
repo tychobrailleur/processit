@@ -10,3 +10,13 @@ rule "A1 messages"
     then
         System.out.println("Creating entry for " + m.numberId);
 end
+
+
+rule "F111 messages"
+    dialect "mvel"
+
+    when
+        m : Message ( code == "F111" )
+    then
+        System.out.println("Agent Initialization: " + m.numberId);
+end
