@@ -10,14 +10,15 @@ import akka.camel.Consumer
 import akka.camel.Producer
 
 
-import org.kie.api.KieServices;
-import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
+import org.kie.api.KieServices
+import org.kie.api.runtime.KieContainer
 
 import org.kie.api.event.rule.DebugAgendaEventListener
 import org.kie.api.event.rule.DebugRuleRuntimeEventListener
 
-
+/**
+  * Pick up message from <code>rule.incoming</code> queue, and process it with Drools.
+  */
 object Main {
 
   def main(args: Array[String]):Unit = {
