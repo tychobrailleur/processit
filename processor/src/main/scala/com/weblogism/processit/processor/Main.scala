@@ -1,7 +1,5 @@
 package com.weblogism.processit.processor
 
-import akka.actor.Actor
-import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.camel.{CamelExtension, CamelMessage, Consumer, Producer}

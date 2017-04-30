@@ -19,4 +19,14 @@ trait Tables {
   }
 
   lazy val auditLogs = TableQuery[AuditLogs]
+
+
+  class Customers(tag: Tag) extends Table[(Long, String)](tag, "customers") {
+    def id: Rep[Long] = column[Long]("id", O.PrimaryKey)
+    def name: Rep[String] = column[String]("name")
+
+    def * : ProvenShape[(Long, String)] = (id, name)
+  }
+
+  lazy val customers = TableQuery[Customers]
 }

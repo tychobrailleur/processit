@@ -3,6 +3,17 @@ package com.weblogism.processit.client
 import java.sql.Timestamp
 import java.util.UUID
 
+import com.weblogism.processit.client.model.Tables
+
+import scala.concurrent.Future
+
+object Tables extends {
+  val profile = slick.driver.PostgresDriver
+} with com.weblogism.processit.model.Tables
+
+
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
@@ -11,7 +22,6 @@ import akka.camel.{CamelExtension, CamelMessage, Consumer, Producer}
 import akka.actor.actorRef2Scala
 import com.google.gson.internal.LinkedTreeMap
 import slick.jdbc.JdbcBackend.Database
-import com.weblogism.processit.client.model.Tables
 import slick.driver.PostgresDriver.api._
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.dataformat.JsonLibrary
@@ -34,13 +44,39 @@ object Main {
   }
 
 
-  class RabbitConsumer(producer: ActorRef, router: ActorRef) extends Consumer {
+  class RabbitConsumer(producer: ActorRef, router: ActorRef) extends Consumer with Tables {
     // A consumer consumes messages from endpoint
     override def endpointUri = "rabbitmq://localhost/test.queue?queue=test.incoming&durable=true&autoDelete=false&exchangePattern=InOnly"
 
     override def receive = {
       case msg:CamelMessage =>  {
-        router ! msg.bodyAs[String]
+
+        val db = Database.forConfig("postgres")
+        try {
+          // ...
+
+          Console.println("Before query...")
+
+          /*
+          val q1 = for (c <- Customers) yield c.name
+          db.stream(q1.result).foreach(Console.println)
+          */
+
+          val c = customers.map(_.name).result
+          val result:Future[Seq[String]] = db.run(c)
+
+          result onComplete {
+            case scala.util.Success(cust) => for (cc <- cust) println(cust)
+          }
+
+          // Hack to avoid closing the connection before the query returns.
+          Thread.sleep(2000)
+
+          Console.println("After query...")
+
+        } finally db.close
+
+        Console.println(msg.bodyAs[String])
         producer ! msg.bodyAs[String]
       }
       case _ =>

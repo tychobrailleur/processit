@@ -46,4 +46,4 @@ ruby send_message.rb
 
 # License
 
-MIT. (c) 2016 Sébastien Le Callonnec.
+MIT. (c) 2016,2017 Sébastien Le Callonnec.
