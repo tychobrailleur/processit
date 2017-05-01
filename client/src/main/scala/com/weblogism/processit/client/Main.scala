@@ -57,16 +57,11 @@ object Main {
 
           Console.println("Before query...")
 
-          /*
-          val q1 = for (c <- Customers) yield c.name
-          db.stream(q1.result).foreach(Console.println)
-          */
-
           val c = customers.map(_.name).result
           val result:Future[Seq[String]] = db.run(c)
 
           result onComplete {
-            case scala.util.Success(cust) => for (cc <- cust) println(cust)
+            case scala.util.Success(cust) => for (cc <- cust) println(cc)
           }
 
           // Hack to avoid closing the connection before the query returns.
